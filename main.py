@@ -123,8 +123,8 @@ bow_vectorizer = TextVectorization(
 bow_vectorizer.adapt(training_texts)
 
 # 3: Build the model
-# Remember: Not all Sequential models
-# Look at your obsidian notes if you're confused about this in the future
+# Remember: Not all Sequential models care about word order!
+# Look at your Obsidian notes if you're confused about this in the future
 # Here we have BoW + Dense which is NOT sequnce based
 # In order for sequential models to be sequence based they'd need to have layers like LSTM, CNN or Transformers
 model = Sequential([
