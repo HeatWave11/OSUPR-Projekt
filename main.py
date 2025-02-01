@@ -48,7 +48,9 @@ vectorizer = TextVectorization(
 vectorizer.adapt(training_texts)
 
 # Checking the vocabulary size and sample tokens (training)
-# Remember - we only want the vectorizer adapted to training data!!
+# Remember - first two entries in the vocabulary are:
+# the mask token (index 0)
+# the OOV token (index 1)
 vocabulary = vectorizer.get_vocabulary()
 print(f"Vocabulary size: {len(vocabulary)}")
 print("Top 10 tokens:", vocabulary[:10])
@@ -58,6 +60,12 @@ sample_texts = ["I love programming.", "This is irrelevant.", "Hello Microsoft!"
 vectorized_texts = vectorizer(sample_texts)
 print("Original text:", sample_texts)
 print("Vectorized text:", vectorized_texts.numpy())
+
+# Training data vectorization
+vectorized_training_texts = vectorizer(training_texts)
+
+# Validation data vectorization
+vectorized_validation_texts = vectorizer(validation_texts)
 
 
 
