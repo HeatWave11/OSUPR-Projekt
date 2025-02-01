@@ -80,12 +80,6 @@ sequential_vectorizer = TextVectorization(
     # Reminder that standardization isn't done yet!
 )
 
-# Vectorization layer - BoW approach (Word order doesn't matter - for others)
-bow_vectorizer = TextVectorization(
-    max_tokens=10000,  # Limit the vocabulary size to the top 10,000 words
-    output_mode='multi_hot',  # Output multi-hot encoded vectors
-    standardize='lower_and_strip_punctuation',  # Convert to lowercase and remove punctuation
-)
 
 
 # Adapting the TextVectorization layer to the training data
@@ -116,40 +110,51 @@ vectorized_validation_texts = sequential_vectorizer(validation_texts)
 
 
 
-# FIRST ROUGH EXAMPLE: USING BOW WITH A KERAS SEQUENTIAL MODEL
+# FIRST ROUGH EXAMPLE: USING BOW WITH A KERAS SEQUENTIAL MODEL (simple feedforward neural network)
 
-# Step 2: Adapt the vectorizer to the training data
+# 1: Vectorization layer - BoW approach (Word order doesn't matter - for others)
+bow_vectorizer = TextVectorization(
+    max_tokens=10000,  # Limit the vocabulary size to the top 10,000 words
+    output_mode='multi_hot',  # Output multi-hot encoded vectors
+    standardize='lower_and_strip_punctuation',  # Convert to lowercase and remove punctuation
+)
+
+# 2: Adapt the vectorizer to the training data
 bow_vectorizer.adapt(training_texts)
 
-# Step 3: Build the model
+# 3: Build the model
+# Remember: Not all Sequential models
+# Look at your obsidian notes if you're confused about this in the future
+# Here we have BoW + Dense which is NOT sequnce based
+# In order for sequential models to be sequence based they'd need to have layers like LSTM, CNN or Transformers
 model = Sequential([
     bow_vectorizer,  # TextVectorization layer (outputs multi-hot encoded vectors)
     Dense(64, activation='relu'),  # Hidden layer
     Dense(4, activation='softmax')  # Output layer for 4 classes (Positive, Negative, Neutral, Irrelevant)
 ])
 
-# Step 4: Compile the model
+# Step 4: Compiling the model
 model.compile(
     optimizer='adam',
     loss='sparse_categorical_crossentropy',
     metrics=['accuracy']
 )
 
-# Step 5: Print the model summary
+# 5: Print model summary
 model.summary()
 
-# Step 6: Train the model
+# 6: Train the model
 history = model.fit(
-    x=training_texts,  # Raw text inputs
+    x=training_texts,  # Raw text inputs!
     y=training_labels,
     validation_data=(validation_texts, validation_labels),
     epochs=10,
     batch_size=32
 )
 
-# Step 7: Evaluate the model
+# 7: Evaluate the model
 loss, accuracy = model.evaluate(validation_texts, validation_labels)
 print(f"Validation Loss: {loss:.4f}, Validation Accuracy: {accuracy:.4f}")
-# Got Validation Loss: 0.2136, Validation Accuracy: 0.9630 which isn't terrible
+# I got Validation Loss: 0.2136, Validation Accuracy: 0.9630 which isn't terrible
 
 
