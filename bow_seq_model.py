@@ -25,12 +25,12 @@ with open('preprocessed_data.pkl', 'rb') as f:
     bow_training_texts = data['custom_preprocessed_training_texts']
     bow_validation_texts = data['custom_preprocessed_validation_texts']
 
-bow_training_texts = np.array(bow_training_texts).astype(str)
-bow_validation_texts = np.array(bow_validation_texts).astype(str)
+#bow_training_texts = np.array(bow_training_texts).astype(str)
+#bow_validation_texts = np.array(bow_validation_texts).astype(str)
 
 # Convert training labels if necessary (already in NumPy array)
-bow_training_labels = np.array(bow_training_labels, dtype=np.int32)
-bow_validation_labels = np.array(bow_validation_labels, dtype=np.int32)  # Convert validation labels as well
+#bow_training_labels = np.array(bow_training_labels, dtype=np.int32)
+#bow_validation_labels = np.array(bow_validation_labels, dtype=np.int32)  # Convert validation labels as well
 
 #bow_training_texts_list = bow_training_texts.tolist()
 print("First 5 training texts:", bow_training_texts[:5])
@@ -53,25 +53,24 @@ print("Type of training texts:", type(bow_training_texts[0]))
 # 1: Vectorization layer - BoW approach (Word order doesn't matter - for others)
 bow_vectorizer = TextVectorization(
     max_tokens=10000,  # Limit the vocabulary size to the top 10,000 words
-    output_mode='tf_idf',  # Output multi-hot encoded vectors
-    standardize=None,  # Convert to lowercase and remove punctuation
+    output_mode='multi_hot',  # Output multi-hot encoded vectors
+    #standardize=None,  # Convert to lowercase and remove punctuation
     # 'lower_and_strip_punctuation'
 )
 
 # 2: Adapt the vectorizer to the training data
 bow_vectorizer.adapt(bow_training_texts)
-# Inspect the vocabulary size and tokens
-# vocabulary = bow_vectorizer.get_vocabulary()
-#print("Vocabulary size:", len(vocabulary))
-#print("First 10 tokens in the vocabulary:", vocabulary[:10])
-#print("Last 10 tokens in the vocabulary:", vocabulary[-10:])
 
-# Vectorize the training texts again
-vectorized_training_texts = bow_vectorizer(np.array(bow_training_texts))
+# Vectorize training data
+vectorized_bow_training_texts = bow_vectorizer(bow_training_texts)
+
+# Vectorize validation data
+vectorized_bow_validation_texts = bow_vectorizer(bow_validation_texts)
+
 
 # Inspect the shape and first vectorized text
-print("Shape of vectorized training texts:", vectorized_training_texts.shape)
-print("First vectorized training text:", vectorized_training_texts[0].numpy())
+print("Shape of vectorized training texts:", vectorized_bow_training_texts.shape)
+print("First vectorized training text:", vectorized_bow_training_texts[0].numpy())
 
 # 3: Build the model
 # Remember: Not all Sequential models care about word order!
@@ -79,8 +78,6 @@ print("First vectorized training text:", vectorized_training_texts[0].numpy())
 # Here we have BoW + Dense which is NOT sequnce based
 # In order for sequential models to be sequence based they'd need to have layers like LSTM, CNN or Transformers
 model = Sequential([
-    keras.src.layers.InputLayer(shape=(), dtype= tf.string),
-    bow_vectorizer,  # TextVectorization layer (outputs multi-hot encoded vectors)
     Dense(128, activation='relu'),
     Dense(64, activation='relu'),  # Hidden layer
     Dense(4, activation='softmax')  # Output layer for 4 classes (Positive, Negative, Neutral, Irrelevant)
@@ -92,19 +89,16 @@ model.compile(
     loss='sparse_categorical_crossentropy',
     metrics=['accuracy']
 )
-print("nya")
+
 # 5: Print model summary
 model.summary()
 
-# Convert training and validation texts to a standard Python list
-# bow_training_texts_list = bow_training_texts.tolist()
-# bow_validation_texts_list = bow_validation_texts.tolist()
 
 # 6: Fit the model
 history = model.fit(
-    x=bow_training_texts,  # Use converted NumPy array
+    x=vectorized_bow_training_texts,
     y=bow_training_labels,
-    validation_data=(bow_validation_texts, bow_validation_labels),
+    validation_data=(vectorized_bow_validation_texts, bow_validation_labels),
     epochs=10,
     batch_size=32
 )
@@ -112,6 +106,6 @@ history = model.fit(
 
 
 # 7: Evaluate the model
-loss, accuracy = model.evaluate(bow_validation_texts, bow_validation_labels)
+loss, accuracy = model.evaluate(vectorized_bow_validation_texts, bow_validation_labels)
 print(f"Validation Loss: {loss:.4f}, Validation Accuracy: {accuracy:.4f}")
 # I got Validation Loss: 0.2136, Validation Accuracy: 0.9630 which isn't terrible
