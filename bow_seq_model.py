@@ -5,7 +5,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '1'
 # for hiding those tensorflow warnings/info
 # reminder that if I don't manage to use my Vega 56 GPU, I should try build tensorflow with my CPU optimizations enabled
 
-from keras.src.layers import TextVectorization, Dense
+from keras.src.layers import TextVectorization, Dense, Dropout
 from keras.src.models import Sequential
 import tensorflow as tf
 import numpy as np
@@ -78,8 +78,11 @@ print("First vectorized training text:", vectorized_bow_training_texts[0].numpy(
 # Here we have BoW + Dense which is NOT sequnce based
 # In order for sequential models to be sequence based they'd need to have layers like LSTM, CNN or Transformers
 model = Sequential([
+    # learning rate?
     Dense(128, activation='relu'),
+    Dropout(0.5),
     Dense(64, activation='relu'),  # Hidden layer
+    Dropout(0.5),
     Dense(4, activation='softmax')  # Output layer for 4 classes (Positive, Negative, Neutral, Irrelevant)
 ])
 
@@ -91,6 +94,7 @@ model.compile(
 )
 
 # 5: Print model summary
+# I would need to explictiy set output to show correctly in the summary(?)
 model.summary()
 
 
@@ -109,3 +113,8 @@ history = model.fit(
 loss, accuracy = model.evaluate(vectorized_bow_validation_texts, bow_validation_labels)
 print(f"Validation Loss: {loss:.4f}, Validation Accuracy: {accuracy:.4f}")
 # I got Validation Loss: 0.2136, Validation Accuracy: 0.9630 which isn't terrible
+
+model.save("SavedModels/bow_seq_model_dropout.keras")
+
+with open("SavedVectorizers/bow_vectorizer.pkl", "wb") as f:
+    pickle.dump(bow_vectorizer, f)

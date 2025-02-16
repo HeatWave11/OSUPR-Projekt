@@ -6,10 +6,13 @@ from nltk.stem import WordNetLemmatizer
 from nltk.tokenize import word_tokenize
 from data import training_texts, training_labels, validation_texts, validation_labels
 
+
+# check certificates in the python version directory if you get ssl error
 nltk.download('punkt')
 nltk.download('punkt_tab')
 nltk.download('wordnet')
 nltk.download('omw-1.4')
+nltk.download('stopwords')
 nltk.download('averaged_perceptron_tagger_eng')
 
 # Initialize lemmatizer and stopwords
@@ -17,6 +20,9 @@ lemmatizer = WordNetLemmatizer()
 stop_words = set(stopwords.words('english'))
 
 def custom_standardization(text):
+    # If 'texts' is a list, apply the standardization to each element
+    if isinstance(text, list):
+        return [custom_standardization(text) for text in text]
     # Convert to lowercase
     text = text.lower()
 
@@ -62,19 +68,21 @@ def custom_standardization(text):
 # testing
 print(custom_standardization("Nyaaa www.google.com 5555 22!! running"))
 
-custom_preprocessed_training_texts = [custom_standardization(text) for text in training_texts]
-custom_preprocessed_validation_texts = [custom_standardization(text) for text in validation_texts]
-# both are still NumPy arrays of strings BUT now they have been preprocessed
-# shape is the same
-# strings were modified by preprocessing
+if __name__ == "__main__":
 
-print("First 10 texts:")
-for i, text in enumerate(custom_preprocessed_training_texts[:10], start=1):
-    print(f"{i}. {text}")
+    custom_preprocessed_training_texts = [custom_standardization(text) for text in training_texts]
+    custom_preprocessed_validation_texts = [custom_standardization(text) for text in validation_texts]
+    #   both are still NumPy arrays of strings BUT now they have been preprocessed
+    # shape is the same
+    # strings were modified by preprocessing
+
+    print("First 10 texts:")
+    for i, text in enumerate(custom_preprocessed_training_texts[:10], start=1):
+        print(f"{i}. {text}")
 
 
-with open('preprocessed_data.pkl', 'wb') as f:
-    pickle.dump({
-        'custom_preprocessed_training_texts': custom_preprocessed_training_texts,
-        'custom_preprocessed_validation_texts': custom_preprocessed_validation_texts
-    }, f)
+    with open('preprocessed_data.pkl', 'wb') as f:
+        pickle.dump({
+            'custom_preprocessed_training_texts': custom_preprocessed_training_texts,
+            'custom_preprocessed_validation_texts': custom_preprocessed_validation_texts
+        }, f)

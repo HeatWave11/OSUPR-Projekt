@@ -2,14 +2,23 @@
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
+import os
 
 # Data import
 column_names = ['Text ID', 'Entity', 'Sentiment', 'Tweet']
 
-training_dataset = pd.read_csv('E:/School 2425/OSUPR/Projekt/archive/twitter_training.csv',
+# Define the relative path to the 'Data' folder inside your project
+data_folder = os.path.join(os.getcwd(), "Data")
+
+# Load the datasets using the new path
+training_dataset = pd.read_csv(os.path.join(data_folder, "twitter_training.csv"),
                                header=None, names=column_names)
-validation_dataset = pd.read_csv('E:/School 2425/OSUPR/Projekt/archive/twitter_validation.csv',
+
+validation_dataset = pd.read_csv(os.path.join(data_folder, "twitter_validation.csv"),
                                  header=None, names=column_names)
+
+print("Datasets loaded successfully!")
+
 # Datatype: Pandas DataFrames
 # Structure: Tabular data, like a spreadsheet.
 

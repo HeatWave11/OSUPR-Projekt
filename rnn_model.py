@@ -1,8 +1,9 @@
 import tensorflow as tf
 from keras.src.models import Sequential
-from keras.src.layers import TextVectorization
+from keras.src.layers import TextVectorization, BatchNormalization
 from keras.src.layers import Embedding, LSTM, Dense, Dropout
 from data import training_labels,validation_labels
+from keras.src.callbacks import EarlyStopping
 import pickle
 
 from data import max_length_95
@@ -44,32 +45,44 @@ vectorized_validation_texts = sequential_vectorizer(validation_texts)
 ## 1: DEFINING THE MODEL
 
 # Define the model
-model = Sequential()
+model = Sequential([
+    Embedding(input_dim=20000, output_dim=128, input_length=max_length_95),
+    LSTM(64, return_sequences=True),  # Set return_sequences=True for stacking
+    BatchNormalization(),
+    LSTM(32, return_sequences=False),
+    Dropout(0.5), # increasing it may improve generalizability
+    Dense(4, activation='softmax')
+])
 
 # Add an Embedding layer
 # Input_dim is the size of the vocabulary (20000 in your case)
 # Output_dim is the size of the embedding vectors (e.g., 128)
 # Input_length is the length of the input sequences (max_length_95)
-model.add(Embedding(input_dim=20000, output_dim=128, input_length=max_length_95))
+# model.add(Embedding(input_dim=20000, output_dim=128, input_length=max_length_95))
 
 # Add an LSTM layer (or GRU layer)
 # You can adjust the number of units (e.g., 64, 128, etc.)
-model.add(LSTM(64, return_sequences=False))  # Set return_sequences=True if stacking RNN layers
+# model.add(LSTM(64, return_sequences=False))  # Set return_sequences=True if stacking RNN layers
 
 # Add a Dense layer for classification
 # Assuming binary classification (e.g., sentiment analysis)
-model.add(Dense(1, activation='sigmoid'))
+# model.add(Dense(1, activation='sigmoid'))
 
 # Add Dropout for regularization (optional)
-model.add(Dropout(0.5))
+# model.add(Dropout(0.5))
 
 # Compile the model
-model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+model.compile(optimizer='adam',
+              loss='sparse_categorical_crossentropy',
+              metrics=['accuracy'])
 
 # Print the model summary
 model.summary()
 
 ## 3: TRAINING THE MODEL
+# Define the early stopping callback
+early_stopping = EarlyStopping(monitor='val_loss', patience=3, restore_best_weights=True)
+
 
 # Train the model
 history = model.fit(
@@ -77,7 +90,8 @@ history = model.fit(
     training_labels,           # Training labels
     validation_data=(vectorized_validation_texts, validation_labels),  # Validation data
     epochs=10,                  # Number of epochs
-    batch_size=32               # Batch size
+    batch_size=32,               # Batch size
+    callbacks=[early_stopping]
 )
 
 ## 4: EVALUATING THE MODEL
@@ -124,3 +138,8 @@ print(f"Validation Accuracy: {accuracy}")
 ##vectorized_training_texts = sequential_vectorizer(custom_preprocessed_training_texts1)
 # Validation data vectorization
 ##vectorized_validation_texts = sequential_vectorizer(custom_preprocessed_validation_texts1)
+
+model.save("SavedModels/rnn_seq_model.keras")
+
+with open("SavedVectorizers/rnn_vectorizer.pkl", "wb") as f:
+    pickle.dump(sequential_vectorizer, f)
