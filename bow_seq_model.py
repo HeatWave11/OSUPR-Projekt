@@ -115,6 +115,8 @@ print(f"Validation Loss: {loss:.4f}, Validation Accuracy: {accuracy:.4f}")
 # I got Validation Loss: 0.2136, Validation Accuracy: 0.9630 which isn't terrible
 
 model.save("SavedModels/bow_seq_model_dropout.keras")
+# Save as HDF5
+model.save("SavedModels/bow_seq_model_dropout.h5")
 
 with open("SavedVectorizers/bow_vectorizer.pkl", "wb") as f:
     pickle.dump(bow_vectorizer, f)

@@ -3,6 +3,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '1'
 # for hiding those tensorflow warnings/info
 # reminder that if I don't manage to use my Vega 56 GPU, I should try build tensorflow with my CPU optimizations enabled
 import keras
+import tensorflow as tf
 import pandas as pd
 import numpy as np
 from keras.src.layers import TextVectorization, Dense
@@ -19,7 +20,7 @@ import data
 bow_model = keras.models.load_model("SavedModels/bow_seq_model.keras")
 
 
-
+print(tf.__version__)
 
 
 

@@ -4,10 +4,10 @@ from sklearn.metrics import f1_score, classification_report
 
 from standardization import custom_standardization
 
-with open("SavedVectorizers/rnn_vectorizer_fold1.pkl", "rb") as f:
+with open("SavedVectorizers/rnn_vectorizer.pkl", "rb") as f:
     bow_vectorizer = pickle.load(f)
 
-model = keras.models.load_model("SavedModels/rnn_seq_model_fold1.keras")
+model = keras.models.load_model("SavedModels/rnn_seq_model.keras")
 
 new_tweets = [
     "I absolutely love this movie, it was fantastic! I really love love love it so much",
