@@ -8,7 +8,7 @@ import numpy as np
 script_dir = os.path.dirname(os.path.abspath(__file__))
 
 # Construct the correct relative path
-model_path = os.path.join(script_dir, "SavedModels", "bow_seq_model_dropout.keras")
+model_path = os.path.join(script_dir, "SavedModels", "rnn_seq_model_fold1.keras")
 
 # Construct the direct path
 #model_loaded = keras.models.load_model(model_path)
@@ -21,7 +21,7 @@ model = keras.models.load_model(model_path)
 # model = keras.models.load_model("SavedModels/rnn_seq_model.keras")
 
 
-vectorizer_path = os.path.join(script_dir, "SavedVectorizers", "bow_vectorizer.pkl")
+vectorizer_path = os.path.join(script_dir, "SavedVectorizers", "rnn_vectorizer_fold1.pkl")
 
 with open(vectorizer_path, "rb") as f:
     vectorizer = pickle.load(f)
@@ -45,7 +45,7 @@ def analyze_tweet(sender, app_data):
     dpg.set_value("result_output", f"Predicted Sentiment: {predicted_sentiment}")
 dpg.create_context()
 
-with dpg.window(label="Sentiment Analysis", width=400, height=300):
+with dpg.window(label="Sentiment Analysis", width=500, height=400):
     dpg.add_text("Enter a tweet:")
     dpg.add_input_text(label="Tweet", tag="tweet_input", width=300)
     dpg.add_button(label="Analyze", callback=analyze_tweet)
@@ -63,6 +63,7 @@ with dpg.window(label="Sentiment Analysis", width=400, height=300):
     dpg.add_input_text(label="Tweet", tag="tweet_input", width=300)
     dpg.add_button(label="Analyze", callback=analyze_tweet)
     dpg.add_text("", tag="result_output")
+
 
 # Start the GUI
 dpg.start_dearpygui()
