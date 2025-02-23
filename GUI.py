@@ -19,7 +19,7 @@ model = keras.models.load_model(model_path)
 
 # Load your trained model and vectorizer
 # model = keras.models.load_model("SavedModels/rnn_seq_model.keras")
-
+#nya
 
 vectorizer_path = os.path.join(script_dir, "SavedVectorizers", "rnn_vectorizer_fold1.pkl")
 
