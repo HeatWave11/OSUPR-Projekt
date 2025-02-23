@@ -26,6 +26,10 @@ vectorizer_path = os.path.join(script_dir, "SavedVectorizers", "bow_vectorizer.p
 with open(vectorizer_path, "rb") as f:
     vectorizer = pickle.load(f)
 
+def enter_callback(sender, app_data):
+    print(f"Entered text: {app_data}")
+    dpg.set_value("output_text", app_data)
+
 
 # Define a function to analyze sentiment
 def analyze_tweet(sender, app_data):
@@ -43,6 +47,8 @@ def analyze_tweet(sender, app_data):
 
     # Update the result in the GUI
     dpg.set_value("result_output", f"Predicted Sentiment: {predicted_sentiment}")
+
+# Creates GUI
 dpg.create_context()
 
 with dpg.window(label="Sentiment Analysis", width=400, height=300):
@@ -56,13 +62,6 @@ dpg.setup_dearpygui()
 dpg.show_viewport()
 dpg.start_dearpygui()
 dpg.destroy_context()
-
-# Create GUI elements
-with dpg.window(label="Sentiment Analysis", width=400, height=300):
-    dpg.add_text("Enter a tweet:")
-    dpg.add_input_text(label="Tweet", tag="tweet_input", width=300)
-    dpg.add_button(label="Analyze", callback=analyze_tweet)
-    dpg.add_text("", tag="result_output")
 
 # Start the GUI
 dpg.start_dearpygui()

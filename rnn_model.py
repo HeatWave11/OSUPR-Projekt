@@ -39,7 +39,12 @@ vectorized_training_texts = sequential_vectorizer(training_texts)
 # Vectorize validation data
 vectorized_validation_texts = sequential_vectorizer(validation_texts)
 
+################################
+vocab = sequential_vectorizer.get_vocabulary()
 
+# Print the specific problem area
+print("Problematic characters:", vocab[84921:84925])
+################################
 
 
 ## 1: DEFINING THE MODEL
