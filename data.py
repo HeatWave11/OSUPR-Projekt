@@ -67,3 +67,6 @@ plt.show()
 # Finding the 95th percentile
 max_length_95 = int(np.percentile(tweet_lengths, 95))
 print(f"95th Percentile tweet length is: {max_length_95}")
+
+# move to a different directory maybe(?)
+# try to lower the total size of all of it (?)

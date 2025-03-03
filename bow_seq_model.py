@@ -120,3 +120,6 @@ model.save("SavedModels/bow_seq_model_dropout.h5")
 
 with open("SavedVectorizers/bow_vectorizer.pkl", "wb") as f:
     pickle.dump(bow_vectorizer, f)
+# rework this probably
+# doesn't really work on windows because of the encoding issue
+#

@@ -86,3 +86,5 @@ if __name__ == "__main__":
             'custom_preprocessed_training_texts': custom_preprocessed_training_texts,
             'custom_preprocessed_validation_texts': custom_preprocessed_validation_texts
         }, f)
+
+    # replace this as well
