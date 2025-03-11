@@ -50,7 +50,7 @@ for fold, (train_idx, val_idx) in enumerate(kf.split(all_texts)):
         Embedding(input_dim=20000, output_dim=128, input_length=max_length_95),
         LSTM(64, return_sequences=True),
         BatchNormalization(),
-        LSTM(32, return_sequences=False),
+        LSTM(32, return_sequences=False)    ,
         Dropout(0.5),
         Dense(4, activation='softmax')
     ])
@@ -92,3 +92,4 @@ for fold, (train_idx, val_idx) in enumerate(kf.split(all_texts)):
 print(f"\n📊 Cross-Validation Results:")
 print(f"Mean Accuracy: {np.mean(fold_accuracies):.4f}")
 print(f"Standard Deviation: {np.std(fold_accuracies):.4f}")
+print(f"Some other metric that could actually turn out to be quite useful: {np.std()}")

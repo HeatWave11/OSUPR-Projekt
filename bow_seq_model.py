@@ -1,4 +1,5 @@
 import os
+import tqdm
 
 import keras.src
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '1'
@@ -114,12 +115,10 @@ loss, accuracy = model.evaluate(vectorized_bow_validation_texts, bow_validation_
 print(f"Validation Loss: {loss:.4f}, Validation Accuracy: {accuracy:.4f}")
 # I got Validation Loss: 0.2136, Validation Accuracy: 0.9630 which isn't terrible
 
-model.save("SavedModels/bow_seq_model_dropout.keras")
-# Save as HDF5
-model.save("SavedModels/bow_seq_model_dropout.h5")
 
+## SAVING MODEL
+model.save("SavedModels/bow_seq_model_dropout.keras")
+
+## SAVING VECTORIZER
 with open("SavedVectorizers/bow_vectorizer.pkl", "wb") as f:
     pickle.dump(bow_vectorizer, f)
-# rework this probably
-# doesn't really work on windows because of the encoding issue
-#

@@ -144,7 +144,11 @@ print(f"Validation Accuracy: {accuracy}")
 # Validation data vectorization
 ##vectorized_validation_texts = sequential_vectorizer(custom_preprocessed_validation_texts1)
 
+## SAVING MODEL
 model.save("SavedModels/rnn_seq_model.keras")
+
+## SAVING VECTORIZER
+# dump(sequential_vectorizer, 'SavedVectorizers/rnn_vectorizer.joblib')
 
 with open("SavedVectorizers/rnn_vectorizer.pkl", "wb") as f:
     pickle.dump(sequential_vectorizer, f)
