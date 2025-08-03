@@ -21,6 +21,7 @@ bow_model = keras.models.load_model("SavedModels/bow_seq_model.keras")
 
 
 print(tf.__version__)
+print(tf.__version__)
 
 
 

@@ -1,57 +1,74 @@
 import keras
-import pickle
-from sklearn.metrics import f1_score, classification_report
+import json  # <-- Import JSON
+import numpy as np
+from sklearn.metrics import classification_report
+from keras.src.layers import TextVectorization #<-- Import TextVectorization
 
 from standardization import custom_standardization
 
-with open("SavedVectorizers/rnn_vectorizer.pkl", "rb") as f:
-    bow_vectorizer = pickle.load(f)
+# --- REPLACEMENT FOR PICKLE ---
+# This block replaces 'with open(...) as f: pickle.load(f)'
 
-model = keras.models.load_model("SavedModels/rnn_seq_model.keras")
+# 1. Load the saved configuration and weights from the file
+with open("SavedVectorizers/bow_vectorizer.json", "r", encoding='utf-8') as f:
+    vectorizer_data = json.load(f)
 
+# 2. Recreate the TextVectorization layer from the loaded configuration
+bow_vectorizer = TextVectorization.from_config(vectorizer_data['config'])
+
+# 3. Get the weights (vocabulary), convert them back to a NumPy array, and set them
+# The vocabulary must be a NumPy array of string type (dtype=np.str_)
+weights_as_np = [np.array(w, dtype=np.str_) for w in vectorizer_data['weights']]
+bow_vectorizer.set_weights(weights_as_np)
+
+print("Vectorizer reloaded successfully from JSON!")
+# --- END OF REPLACEMENT BLOCK ---
+
+
+# Load the pre-trained Keras model (this is already safe)
+model = keras.models.load_model("SavedModels/bow_seq_model_dropout.keras") # Make sure the model name matches what you saved
+print("Model loaded successfully!")
+
+# New tweets to classify
 new_tweets = [
     "I absolutely love this movie, it was fantastic! I really love love love it so much",
     "This is the worst experience I've ever had. Absolutly horrible and shit.",
     "Meh, it was okay. Nothing special. I don't care about it at all.",
-    "I'm not sure how I feel about this..."
-    "Now the President is slapping Americans in the face that he really did commit an unlawful act after his  acquittal! From Discover on Google vanityfair.com/news/2020/02/t…"
+    "I'm not sure how I feel about this...",
+    "Now the President is slapping Americans in the face that he really did commit an unlawful act after his acquittal! From Discover on Google vanityfair.com/news/2020/02/t…"
 ]
 
-val_labels_new_tweets = [0,1,2,3]
-# is a list!!
-# Standardize the new tweets using the imported function
-# Ensure new_tweets is a list of strings
-custom_new_tweets = custom_standardization([str(tweet) for tweet in new_tweets])
-print(custom_new_tweets)
+# Standardize the new tweets using your custom function
+# Your standardization function should accept a single string at a time.
+# We will loop through the list and apply it to each tweet.
+custom_new_tweets = [custom_standardization(tweet) for tweet in new_tweets]
+print("\nStandardized Tweets:", custom_new_tweets)
 
-# had to add the list line in standardization for this to work
 
-# Vectorize the new tweets
+# Vectorize the standardized tweets
 vectorized_custom_new_tweets = bow_vectorizer(custom_new_tweets)
 
+# Make predictions
 predictions = model.predict(vectorized_custom_new_tweets)
 
-import numpy as np
-
-# Get the index of the highest probability (most likely class)
+# Get the index of the highest probability for each prediction
 predicted_classes = np.argmax(predictions, axis=1)
 
-# Define the class labels (make sure they match your dataset's labels)
+# Define the class labels
 class_labels = ["Positive", "Negative", "Neutral", "Irrelevant"]
 
-# Convert numerical predictions to class labels
-predicted_labels = [class_labels[i] for i in predicted_classes]
+# Print the results for each tweet
+print("\n--- PREDICTION RESULTS ---")
+for tweet, pred_class_index, probs in zip(new_tweets, predicted_classes, predictions):
+    predicted_label = class_labels[pred_class_index]
+    print(f"Tweet: {tweet}")
+    print(f"Predicted Sentiment: {predicted_label}")
+    # Formatting the probabilities for cleaner output
+    prob_str = ", ".join([f"{label}: {p:.4f}" for label, p in zip(class_labels, probs)])
+    print(f"Probabilities: [{prob_str}]\n")
 
-import numpy as np
 
-# Get prediction probabilities
-predictions = model.predict(vectorized_custom_new_tweets)
-
-# Print tweet, predicted class, and probabilities
-for tweet, prob in zip(new_tweets, predictions):
-    predicted_class = np.argmax(prob)
-    predicted_label = class_labels[predicted_class]
-    print(f"Tweet: {tweet}\nPredicted Sentiment: {predicted_label}\nProbabilities: {prob}\n")
-
-# Ensure your predicted classes are correctly formatted
-print(classification_report(val_labels_new_tweets, predicted_classes, target_names=class_labels))
+# Optional: Evaluate with a classification report if you have ground truth labels
+# val_labels_new_tweets = [0, 1, 2, 3, 3] # Example labels for the tweets above
+# print("\n--- CLASSIFICATION REPORT ---")
+# print(classification_report(val_labels_new_tweets, predicted_classes, target_names=class_labels))
